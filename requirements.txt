@@ -1,0 +1,11 @@
+# Web Framework
+fastapi
+
+# ASGI Server
+uvicorn[standard]
+
+# Google Gemini API Client
+google-generativeai
+
+# Environment Variable Management
+python-dotenv

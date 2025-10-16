@@ -58,6 +58,13 @@ async def stream_generator(system_prompt: str, history: List[dict]) -> AsyncGene
         yield "Error: Could not get response from AI."
 
 # --- API Endpoints ---
+@app.get("/")
+def root():
+    """
+    A simple endpoint to confirm the server is running.
+    This is what Render's health checker will hit.
+    """
+    return {"status": "ok", "message": "Backend is running!"}
 @app.post("/chat")
 async def chat(request: ChatRequest):
     formatted_history = [
