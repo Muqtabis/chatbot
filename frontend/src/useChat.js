@@ -21,7 +21,9 @@ export const useChat = () => {
     setIsLoading(true);
 
     try {
-      const res = await fetch('http://127.0.0.1:8000/chat', {
+        // Use the environment variable for the backend URL
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://127.0.0.1:8000';
+      const res = await fetch(`${backendUrl}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
