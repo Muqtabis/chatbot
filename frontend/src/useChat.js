@@ -10,9 +10,21 @@ Your tone should be encouraging and professional.`;
 export const useChat = () => {
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-
+// 2. Create a ref to hold the AbortController
+  const abortControllerRef = useRef(null);
+  // 3. Create the new "stop generating" function
+  const stopGenerating = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort(); // Cancel the fetch request
+      abortControllerRef.current = null;
+      setIsLoading(false);
+    }
+  };
   const sendMessage = async (input) => {
     if (!input.trim()) return;
+// 4. Create a new AbortController for this specific request
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
 
     const userMessage = { id: Date.now(), role: 'user', content: input };
     const updatedHistory = [...messages, userMessage];
@@ -30,6 +42,7 @@ export const useChat = () => {
           history: updatedHistory.map(({ id, ...rest }) => rest),
           system_prompt: SYSTEM_PROMPT
         }),
+        signal: controller.signal // 5. Pass the signal to fetch
       });
 
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -52,6 +65,9 @@ export const useChat = () => {
         ));
       }
     } catch (err) {
+        if (err.name === 'AbortError') {
+        console.log('Fetch aborted by user.');
+      } else {
       console.error('Failed to send message:', err);
       const errorMessage = {
         id: Date.now() + 1,
@@ -59,10 +75,11 @@ export const useChat = () => {
         content: 'Error: Could not reach the chatbot.',
       };
       setMessages((prev) => [...prev, errorMessage]);
-    } finally {
+    }} finally {
       setIsLoading(false);
+      abortControllerRef.current = null; // Clean up the controller
     }
   };
 
-  return { messages, isLoading, sendMessage };
+  return { messages, isLoading, sendMessage, stopGenerating };
 };

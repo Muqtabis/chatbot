@@ -55,6 +55,10 @@ async def stream_generator(system_prompt: str, history: List[dict]) -> AsyncGene
         response = chat_session.send_message(new_user_message, stream=True)
         
         for chunk in response:
+            # 3. Check if the client has disconnected
+            if await request.is_disconnected():
+                print("Client disconnected. Stopping generation.")
+                break # Stop sending data
             yield chunk.text
     except Exception as e:
         print(f"Error during stream generation: {e}")

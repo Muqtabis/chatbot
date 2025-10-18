@@ -7,7 +7,7 @@ import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 
 function App() {
-  const { messages, isLoading, sendMessage } = useChat();
+  const { messages, isLoading, sendMessage, stopGenerating } = useChat();
   const chatViewRef = useRef(null);
 
   // Auto-scroll to the bottom on new messages
@@ -46,10 +46,17 @@ function App() {
             <ChatMessage message={{ id: 'typing', role: 'model', content: '...' }} />
           )}
         </div>
-      </div>
+        {/* 2. Conditionally render the stop button when loading */}
+      {isLoading && (
+        <div className="stop-button-container">
+          <button onClick={stopGenerating} className="stop-button">
+            🛑 Stop Generating
+          </button>
+        </div>
+      )}
       <ChatInput onSend={sendMessage} isLoading={isLoading} />
+      </div>
     </div>
   );
 }
-
 export default App;

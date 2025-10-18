@@ -180,3 +180,26 @@ body {
     height: 36px;
   }
 }
+/* --- 7. Stop Generating Button --- */
+.stop-button-container {
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem 0;
+  background-color: var(--panel-bg); /* Or your app's background */
+}
+
+.stop-button {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--bot-bubble-bg);
+  color: var(--text-primary);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.stop-button:hover {
+  background-color: #fca5a5; /* A light red */
+  color: #7f1d1d; /* A dark red text */
+  border-color: #fca5a5;
+}
