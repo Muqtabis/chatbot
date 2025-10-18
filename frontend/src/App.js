@@ -12,6 +12,22 @@ function App() {
 
   // Auto-scroll to the bottom on new messages
   useEffect(() => {
+    // This function sets a CSS variable to the actual inner window height
+    const setAppHeight = () => {
+      const doc = document.documentElement;
+      doc.style.setProperty('--app-height', `${window.innerHeight}px`);
+    };
+
+    // Set the height initially and on every resize
+    window.addEventListener('resize', setAppHeight);
+    setAppHeight();
+
+    // Cleanup function to remove the event listener
+    return () => window.removeEventListener('resize', setAppHeight);
+  }, []);
+  // ------------------------------------
+
+  useEffect(() => {
     if (chatViewRef.current) {
       chatViewRef.current.scrollTop = chatViewRef.current.scrollHeight;
     }

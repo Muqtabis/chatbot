@@ -42,11 +42,11 @@ export const ChatMessage = ({ message }) => {
   const isUser = message.role === 'user';
 
   return (
-    <div className="message-container">
+    <div className={`message-container${isUser ? ' user-message' : ''}`}>
       <div className={`avatar ${isUser ? 'user' : 'bot'}`}>
         {isUser ? <FaUser /> : <FaRobot />}
       </div>
-      <div className="message-content">
+      <div className={`message-content ${isUser ? 'user' : 'bot'}`}>
         {message.content === '...' ? (
           <div className="typing-indicator">
             <span></span><span></span><span></span>
