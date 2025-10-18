@@ -116,3 +116,52 @@ body {
 }
 .send-button:not(:disabled):hover { background-color: #666; }
 .send-button:disabled { opacity: 0.5; cursor: not-allowed; }
+/* src/App.css */
+
+/* --- ADD THIS ENTIRE BLOCK TO THE END OF YOUR FILE --- */
+
+/* --- 6. Mobile Responsiveness --- */
+@media (max-width: 768px) {
+  /* Use the full screen, remove wide padding */
+  .chat-view {
+    padding: 1rem 0.5rem;
+  }
+
+  .chat-content {
+    padding-bottom: 2rem;
+  }
+
+  /* Make messages slightly narrower to feel less cramped */
+  .message-container {
+    max-width: 90%;
+  }
+  
+  /* Adjust welcome screen for small displays */
+  .welcome-screen {
+    padding-top: 10vh;
+  }
+  .welcome-screen h1 {
+    font-size: 1.8rem;
+  }
+  .example-prompts {
+    flex-direction: column; /* Stack buttons vertically */
+    width: 90%;
+  }
+
+  /* Make the input area and button more compact */
+  .input-container {
+    padding: 1rem 0.5rem;
+  }
+
+  .chat-input {
+    padding: 0.8rem 3rem 0.8rem 1rem;
+    font-size: 0.9rem;
+    border-radius: 12px;
+  }
+
+  .send-button {
+    right: 0.5rem;
+    width: 32px;
+    height: 32px;
+  }
+}
