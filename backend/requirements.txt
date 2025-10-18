@@ -1,16 +1,11 @@
+# Web Framework
 fastapi
-uvicorn
-openai==2.4.0
-python-dotenv
-# Add Render's wildcard domain and your future frontend URL
-origins = [
-    "http://localhost:3000",
-    "*.onrender.com", # Allows Render's internal communication
-    "https://chatbot.com" # Example, replace with your actual frontend name
-]
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    # ... rest of the config
-)
+# ASGI Server
+uvicorn[standard]
+
+# Google Gemini API Client
+google-generativeai
+
+# Environment Variable Management
+python-dotenv
