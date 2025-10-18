@@ -13,7 +13,10 @@ from fastapi.responses import StreamingResponse
 load_dotenv()
 app = FastAPI()
 # ... (CORS middleware setup is the same)
-origins = ["http://localhost:3000"]
+origins = [
+    "http://localhost:3000",
+    "https://chatbot-frontend-jib1.onrender.com",
+]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
