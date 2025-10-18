@@ -1,4 +1,4 @@
-/* src/App.css - Final Desktop-First Responsive Theme */
+/* src/App.css - Final Desktop-First Theme with Anchored Input Bar */
 
 /* --- 1. Global Styles & Color Palette --- */
 :root {
@@ -14,38 +14,27 @@
   --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
-html {
-  font-size: 16px; /* Base font size for desktop */
-}
-
+html { font-size: 16px; }
 body {
-  margin: 0;
-  font-family: var(--font-family);
-  background-color: var(--background-color);
-  color: var(--text-primary);
-  overflow: hidden;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  margin: 0; font-family: var(--font-family); background-color: var(--background-color);
+  color: var(--text-primary); overflow: hidden; -webkit-font-smoothing: antialiased;
 }
 
 /* --- 2. Main App Layout (Desktop) --- */
 .app-container {
-  display: flex;
-  flex-direction: column;
+  display: flex; flex-direction: column;
   height: var(--app-height, 100vh);
   background-color: var(--panel-bg);
+  position: relative; /* CRITICAL: Required for absolute positioning of child */
 }
 
 .chat-view {
-  flex-grow: 1;
-  overflow-y: auto;
-  padding: 2rem;
-  min-height: 0; /* THE CRITICAL FIX for scrolling */
+  flex-grow: 1; overflow-y: auto; padding: 2rem; min-height: 0;
 }
 
 .chat-content {
-  max-width: 900px;
-  margin: 0 auto;
+  max-width: 900px; margin: 0 auto;
+  padding-bottom: 120px; /* CRITICAL: Adds space at the bottom for the input bar */
 }
 
 /* Custom scrollbar */
@@ -75,14 +64,13 @@ body {
 }
 .prompt-button:hover { background-color: #f0f0f0; transform: translateY(-2px); }
 
-/* --- 4. Chat Messages (User on Right, Bot on Left) --- */
+/* --- 4. Chat Messages --- */
 .message-container {
   display: flex;
   gap: 1rem;
   margin-bottom: 1.5rem;
   align-items: flex-end;
 }
-/* This class, added in ChatMessage.js, aligns the user message */
 .message-container.user-message {
   flex-direction: row-reverse;
 }
@@ -117,24 +105,38 @@ body {
   white-space: pre-wrap; word-wrap: break-word; position: relative;
 }
 
-/* --- 5. Input Area (Desktop) --- */
+/* --- 5. Input Area - ANCHORED AT THE BOTTOM --- */
 .input-container {
+  position: absolute; /* CRITICAL: Anchors the container */
+  bottom: 0;
+  left: 0;
+  width: 100%;
+
   padding: 1.5rem 1rem;
   border-top: 1px solid var(--border-color);
   background-color: var(--panel-bg);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: center;
+  box-sizing: border-box; /* Ensures padding is included in width */
 }
-.input-wrapper { max-width: 900px; margin: 0 auto; position: relative; }
+
+.input-wrapper {
+  flex-grow: 1;
+  max-width: 900px;
+  position: relative;
+}
+
 .chat-input {
-  width: 100%;
-  padding: 1.25rem 4rem 1.25rem 1.5rem;
-  background-color: #f0f2f5;
-  color: var(--text-primary); border: 1px solid transparent; border-radius: 28px;
+  width: 100%; padding: 1.25rem 4rem 1.25rem 1.5rem;
+  background-color: #f0f2f5; color: var(--text-primary);
+  border: 1px solid transparent; border-radius: 28px;
   font-size: 1rem; resize: none; box-sizing: border-box;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .chat-input:focus {
-  outline: none;
-  border-color: var(--user-bubble-start);
+  outline: none; border-color: var(--user-bubble-start);
   box-shadow: 0 0 0 4px rgba(106, 130, 251, 0.3);
 }
 .send-button {
@@ -150,56 +152,28 @@ body {
 .send-button:active:not(:disabled) { transform: translateY(-50%) scale(0.9); }
 .send-button:disabled { background-color: #c7c7cc; cursor: not-allowed; }
 
-/* --- 6. Mobile Responsiveness --- */
-@media (max-width: 768px) {
-  html {
-    font-size: 15px; /* Adjust base font for smaller screens */
-  }
-  .chat-view {
-    padding: 1rem 0.75rem; /* Less padding on mobile */
-  }
-  .welcome-screen h1 {
-    font-size: 1.8rem;
-  }
-  .example-prompts {
-    flex-direction: column;
-    width: 90%;
-  }
-  .message-content {
-    max-width: 85%; /* Allow bubbles to be a bit wider on mobile */
-  }
-  .input-container {
-    padding: 0.75rem;
-  }
-  .chat-input {
-    padding: 1rem 3.5rem 1rem 1rem;
-    border-radius: 20px;
-  }
-  .send-button {
-    width: 36px;
-    height: 36px;
-  }
-}
-/* --- 7. Stop Generating Button --- */
-.stop-button-container {
-  display: flex;
-  justify-content: center;
-  padding: 0.5rem 0;
-  background-color: var(--panel-bg); /* Or your app's background */
-}
-
+/* --- 6. Stop Generating Button --- */
 .stop-button {
-  padding: 0.5rem 1rem;
-  border: 1px solid var(--border-color);
-  background-color: var(--bot-bubble-bg);
-  color: var(--text-primary);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.75rem 1.25rem; background-color: #f0f2f5;
+  border: 1px solid var(--border-color); color: var(--text-secondary);
+  border-radius: 12px; cursor: pointer; flex-shrink: 0;
+  transition: all 0.2s ease; animation: fadeIn 0.3s ease-out;
 }
+.stop-button:hover { background-color: #fee2e2; border-color: #ef4444; color: #ef4444; }
+.stop-icon { font-size: 0.8rem; }
+@keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
-.stop-button:hover {
-  background-color: #fca5a5; /* A light red */
-  color: #7f1d1d; /* A dark red text */
-  border-color: #fca5a5;
+/* --- 7. Mobile Responsiveness --- */
+@media (max-width: 768px) {
+  html { font-size: 15px; }
+  .chat-view { padding: 1rem 0.75rem; }
+  .chat-content { padding-bottom: 90px; } /* Adjust padding for mobile */
+  .welcome-screen h1 { font-size: 1.8rem; }
+  .example-prompts { flex-direction: column; width: 90%; }
+  .message-content { max-width: 85%; }
+  .input-container { padding: 0.75rem; }
+  .chat-input { padding: 1rem 3.5rem 1rem 1rem; border-radius: 20px; }
+  .send-button { width: 36px; height: 36px; }
+  .stop-button { padding: 0.6rem 1rem; font-size: 0.9rem; }
 }

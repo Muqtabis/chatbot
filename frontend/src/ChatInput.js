@@ -2,7 +2,10 @@
 import React, { useState } from 'react';
 import { IoSend } from 'react-icons/io5';
 
-export const ChatInput = ({ onSend, isLoading }) => {
+// You'll want an icon for the stop button as well
+import { FaStop } from 'react-icons/fa';
+
+export const ChatInput = ({ onSend, isLoading, onStop }) => {
   const [input, setInput] = useState('');
 
   const handleSend = () => {
@@ -19,6 +22,7 @@ export const ChatInput = ({ onSend, isLoading }) => {
   };
 
   return (
+    // This container will now use flexbox to align the items
     <div className="input-container">
       <div className="input-wrapper">
         <textarea
@@ -30,6 +34,7 @@ export const ChatInput = ({ onSend, isLoading }) => {
           rows="1"
           className="chat-input"
         />
+        {/* The send button remains inside the wrapper */}
         <button
           onClick={handleSend}
           disabled={isLoading || !input.trim()}
@@ -38,6 +43,13 @@ export const ChatInput = ({ onSend, isLoading }) => {
           <IoSend />
         </button>
       </div>
+      
+      {/* The stop button appears next to the wrapper when loading */}
+      {isLoading && (
+        <button onClick={onStop} className="stop-button">
+          <FaStop className="stop-icon" /> Stop
+        </button>
+      )}
     </div>
   );
 };

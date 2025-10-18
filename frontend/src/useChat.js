@@ -1,5 +1,5 @@
 // src/useChat.js
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 const SYSTEM_PROMPT = `You are CodeBot, a friendly and expert programming assistant.
 Your goal is to help users understand complex programming topics.
