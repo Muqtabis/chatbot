@@ -45,7 +45,7 @@ async def stream_generator(system_prompt: str, history: List[dict]) -> AsyncGene
     try:
         # 2. Add the system prompt when creating the model instance
         model = genai.GenerativeModel(
-            'gemini-1.5-flash',
+            'emini-1.5-flash-latest',
             system_instruction=system_prompt
         )
         
