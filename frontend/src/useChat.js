@@ -30,7 +30,8 @@ export const useChat = () => {
     setIsLoading(true);
 
     try {
-      const backendUrl = 'http://127.0.0.1:8000'; // Ensure this matches your backend
+      const backendUrl =[ 'http://127.0.0.1:8000',
+      "https://chatbot-backend-bhkw.onrender.com"]; // Ensure this matches your backend
       const res = await fetch(`${backendUrl}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
