@@ -45,7 +45,7 @@ async def stream_generator(system_prompt: str, history: List[dict]) -> AsyncGene
         # We use 'gemini-1.5-flash' because it has the best free-tier limits (1500/day)
         # 'gemini-pro-latest' often hits the 50/day limit too fast.
         model = genai.GenerativeModel(
-            'gemini-2.5-flash', 
+            'gemini-pro-latest',
             system_instruction=system_prompt
         )
         
