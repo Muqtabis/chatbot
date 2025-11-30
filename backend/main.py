@@ -18,7 +18,7 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -42,10 +42,10 @@ class ChatRequest(BaseModel):
 # --- Streaming Logic ---
 async def stream_generator(system_prompt: str, history: List[dict]) -> AsyncGenerator[str, None]:
     try:
-        # We use 'gemini-1.5-flash' because it has the best free-tier limits (1500/day)
+        # We use 'gemini-2.5-flash' because it has the best free-tier limits (1500/day)
         # 'gemini-pro-latest' often hits the 50/day limit too fast.
         model = genai.GenerativeModel(
-            'gemini-pro-latest',
+            'gemini-2.5-flash',
             system_instruction=system_prompt
         )
         
