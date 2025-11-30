@@ -1,5 +1,3 @@
-# main.py
-
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,14 +7,15 @@ import google.generativeai as genai
 from typing import List, Optional, AsyncGenerator
 from fastapi.responses import StreamingResponse
 
-# --- Setup and Configuration (no changes) ---
+# --- Setup and Configuration ---
 load_dotenv()
 app = FastAPI()
-# ... (CORS middleware setup is the same)
+
 origins = [
     "http://localhost:3000",
     "https://chatbot-frontend-jib1.onrender.com",
 ]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -24,6 +23,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 try:
     api_key = os.getenv("GOOGLE_API_KEY")
     genai.configure(api_key=api_key)
@@ -37,41 +37,39 @@ class ChatMessage(BaseModel):
 
 class ChatRequest(BaseModel):
     history: List[ChatMessage]
-    # 1. Add an optional field for the system prompt
     system_prompt: Optional[str] = None
 
 # --- Streaming Logic ---
 async def stream_generator(system_prompt: str, history: List[dict]) -> AsyncGenerator[str, None]:
     try:
-        # 2. Add the system prompt when creating the model instance
+        # We use 'gemini-1.5-flash' because it has the best free-tier limits (1500/day)
+        # 'gemini-pro-latest' often hits the 50/day limit too fast.
         model = genai.GenerativeModel(
-            'gemini-pro-latest',
+            'gemini-2.5-flash', 
             system_instruction=system_prompt
         )
         
         chat_session = model.start_chat(history=history[:-1])
         new_user_message = history[-1]['parts'][0]
         
+        # Send message to AI
         response = chat_session.send_message(new_user_message, stream=True)
         
+        # Stream the chunks back
         for chunk in response:
-            # 3. Check if the client has disconnected
-            if await request.is_disconnected():
-                print("Client disconnected. Stopping generation.")
-                break # Stop sending data
-            yield chunk.text
+            if chunk.text:
+                yield chunk.text
+
     except Exception as e:
+        # This will print the exact error to your terminal so we can fix it
         print(f"Error during stream generation: {e}")
-        yield "Error: Could not get response from AI."
+        yield f"Error: {str(e)}"
 
 # --- API Endpoints ---
 @app.get("/")
 def root():
-    """
-    A simple endpoint to confirm the server is running.
-    This is what Render's health checker will hit.
-    """
     return {"status": "ok", "message": "Backend is running!"}
+
 @app.post("/chat")
 async def chat(request: ChatRequest):
     formatted_history = [
@@ -79,7 +77,6 @@ async def chat(request: ChatRequest):
         for msg in request.history
     ]
     
-    # 3. Use the system prompt from the request, or a default if none is provided
     system_prompt = request.system_prompt or "You are a helpful assistant."
     
     return StreamingResponse(stream_generator(system_prompt, formatted_history), media_type="text/plain")

@@ -1,17 +1,16 @@
-// src/ChatInput.js
-import React, { useState } from 'react';
-import { IoSend } from 'react-icons/io5';
+import React, { useState, useRef, useEffect } from 'react';
+import { FiSend } from 'react-icons/fi';
 
-// You'll want an icon for the stop button as well
-import { FaStop } from 'react-icons/fa';
-
-export const ChatInput = ({ onSend, isLoading, onStop }) => {
-  const [input, setInput] = useState('');
+export const ChatInput = ({ onSend, isLoading }) => {
+  const [text, setText] = useState("");
+  const textareaRef = useRef(null);
 
   const handleSend = () => {
-    if (!input.trim()) return;
-    onSend(input);
-    setInput('');
+    if (text.trim() && !isLoading) {
+      onSend(text);
+      setText("");
+      textareaRef.current.style.height = 'auto'; // Reset height
+    }
   };
 
   const handleKeyDown = (e) => {
@@ -21,35 +20,35 @@ export const ChatInput = ({ onSend, isLoading, onStop }) => {
     }
   };
 
+  // Auto-resize textarea
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+    }
+  }, [text]);
+
   return (
-    // This container will now use flexbox to align the items
-    <div className="input-container">
-      <div className="input-wrapper">
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Message your AI assistant..."
-          disabled={isLoading}
-          rows="1"
-          className="chat-input"
-        />
-        {/* The send button remains inside the wrapper */}
-        <button
-          onClick={handleSend}
-          disabled={isLoading || !input.trim()}
-          className="send-button"
-        >
-          <IoSend />
-        </button>
-      </div>
-      
-      {/* The stop button appears next to the wrapper when loading */}
-      {isLoading && (
-        <button onClick={onStop} className="stop-button">
-          <FaStop className="stop-icon" /> Stop
-        </button>
-      )}
+    <div className="relative bg-[var(--bg-input)] rounded-xl border border-slate-600 shadow-xl focus-within:ring-2 focus-within:ring-[var(--accent)] transition-all">
+      <textarea
+        ref={textareaRef}
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder="Send a message..."
+        rows={1}
+        className="w-full bg-transparent text-white px-4 py-4 pr-12 outline-none resize-none max-h-[200px] min-h-[56px] scrollbar-hide"
+        disabled={isLoading}
+      />
+      <button 
+        onClick={handleSend}
+        disabled={isLoading || !text.trim()}
+        className={`absolute right-3 bottom-3 p-2 rounded-lg transition-all ${
+          text.trim() ? 'bg-[var(--accent)] text-white' : 'bg-transparent text-slate-500'
+        }`}
+      >
+        <FiSend size={18} />
+      </button>
     </div>
   );
 };
