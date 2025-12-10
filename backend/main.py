@@ -26,6 +26,8 @@ app.add_middleware(
 
 try:
     api_key = os.getenv("GOOGLE_API_KEY")
+    if not api_key:
+        print("Warning: GOOGLE_API_KEY not found in environment variables.")
     genai.configure(api_key=api_key)
 except Exception as e:
     print(f"Error configuring Google AI: {e}")
@@ -42,17 +44,31 @@ class ChatRequest(BaseModel):
 # --- Streaming Logic ---
 async def stream_generator(system_prompt: str, history: List[dict]) -> AsyncGenerator[str, None]:
     try:
-        # We use 'gemini-2.5-flash' because it has the best free-tier limits (1500/day)
-        # 'gemini-pro-latest' often hits the 50/day limit too fast.
+        # OPTIMIZATION 1: Use the fastest available model (2.5 Flash Lite)
+        model_name = 'gemini-2.5-flash-lite' 
+        
+        # OPTIMIZATION 2: Set generation limits to prevent long stalls
+        gen_config = genai.types.GenerationConfig(
+            max_output_tokens=500, # Cap response length
+            temperature=0.7        # Balance creativity and speed
+        )
+
         model = genai.GenerativeModel(
-            'gemini-2.5-flash',
-            system_instruction=system_prompt
+            model_name,
+            system_instruction=system_prompt,
+            generation_config=gen_config
         )
         
-        chat_session = model.start_chat(history=history[:-1])
+        # OPTIMIZATION 3: Limit history to last 10 turns to reduce processing time
+        # We take the last 11 items (10 history + 1 current prompt), then exclude the current prompt
+        recent_history = history[-11:-1] if len(history) > 1 else []
+        
+        chat_session = model.start_chat(history=recent_history)
+        
+        # The new user message is the last item in the full history list
         new_user_message = history[-1]['parts'][0]
         
-        # Send message to AI
+        # Send message to AI with streaming enabled
         response = chat_session.send_message(new_user_message, stream=True)
         
         # Stream the chunks back
@@ -61,8 +77,8 @@ async def stream_generator(system_prompt: str, history: List[dict]) -> AsyncGene
                 yield chunk.text
 
     except Exception as e:
-        # This will print the exact error to your terminal so we can fix it
         print(f"Error during stream generation: {e}")
+        # Yield the error so the frontend sees something went wrong
         yield f"Error: {str(e)}"
 
 # --- API Endpoints ---
@@ -72,6 +88,7 @@ def root():
 
 @app.post("/chat")
 async def chat(request: ChatRequest):
+    # Convert Pydantic models to the format Gemini expects
     formatted_history = [
         {"role": "user" if msg.role == "user" else "model", "parts": [msg.content]}
         for msg in request.history
@@ -79,4 +96,7 @@ async def chat(request: ChatRequest):
     
     system_prompt = request.system_prompt or "You are a helpful assistant."
     
-    return StreamingResponse(stream_generator(system_prompt, formatted_history), media_type="text/plain")
+    return StreamingResponse(
+        stream_generator(system_prompt, formatted_history), 
+        media_type="text/plain"
+    )
